@@ -1,0 +1,13 @@
+### IntelliJ IDEA ###
+out/
+.idea/workspace.xml
+.idea/shelf/
+
+### Материалы, которые не публикуются ###
+7. Стохастическое окружение.pdf
+Служебное (генератор отчёта)/
+
+### Mac OS ###
+.DS_Store
+### Word lock files ###
+~$*

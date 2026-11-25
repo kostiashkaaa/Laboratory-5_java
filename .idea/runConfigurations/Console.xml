@@ -1,0 +1,11 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Laba5 Console" type="Application" factoryName="Application">
+    <option name="MAIN_CLASS_NAME" value="ru.spbstu.mdp.Main" />
+    <module name="laba5" />
+    <option name="PROGRAM_PARAMETERS" value="--console --risk-demo" />
+    <option name="VM_PARAMETERS" value="-Dfile.encoding=UTF-8 -Dstdout.encoding=UTF-8" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>
