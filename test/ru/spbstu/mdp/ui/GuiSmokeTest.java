@@ -10,7 +10,7 @@ import java.io.File;
 
 /**
  * Проверка GUI без участия человека: окно собирается (не показывается), прогоняется сценарий
- * (шаги агента, редактор мира, недопустимые параметры, серия эпизодов), снимки сохраняются в PNG.
+ * (шаги агента, редактор мира, недопустимые параметры, генерация мира), снимки сохраняются в PNG.
  * Запуск: java -cp out/build:out/test-build ru.spbstu.mdp.ui.GuiSmokeTest каталог_для_снимков
  */
 public final class GuiSmokeTest {
@@ -42,9 +42,6 @@ public final class GuiSmokeTest {
             frame.doStep();
         }
         save(frame, new File(dir, "1_classic_steps.png"));
-
-        frame.runSeriesForTest();
-        require(frame.logText().contains("Серия " + MainFrame.SERIES_EPISODES + " эпизодов"), "серия эпизодов в журнале");
 
         frame.setParameters(-2.0, 1.0);
         require(frame.agent().policy().get(new Position(3, 2)) == ru.spbstu.mdp.model.Action.RIGHT, "R = −2 → (3,2) вправо");

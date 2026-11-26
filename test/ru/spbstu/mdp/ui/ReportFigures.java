@@ -120,7 +120,6 @@ public final class ReportFigures {
         while (!frame.agent().environment().isTerminal()) {
             frame.doStep();
         }
-        frame.runSeriesForTest();
         save(frame, new File(dir, "window_finish.png"));
         frame.setParameters(-0.04, 1.0);
         frame.clickCell(new Position(3, 1), true);

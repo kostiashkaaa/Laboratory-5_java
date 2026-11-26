@@ -1,6 +1,5 @@
 package ru.spbstu.mdp.ui;
 
-import ru.spbstu.mdp.agent.EpisodeStatistics;
 import ru.spbstu.mdp.agent.MdpAgent;
 import ru.spbstu.mdp.decision.Algorithm;
 import ru.spbstu.mdp.decision.IterationSnapshot;
@@ -46,12 +45,11 @@ import java.util.List;
 
 /**
  * Главное окно: мир с полезностями и стратегией, параметры MDP, выбор алгоритма, пошаговый просмотр итераций,
- * анимация движения агента, серия эпизодов и редактор мира.
+ * анимация движения агента и редактор мира.
  */
 public final class MainFrame extends JFrame {
 
     static final int MAX_EPISODE_STEPS = 1_000;
-    static final int SERIES_EPISODES = 5_000;
     private static final int LOG_LIMIT = 200_000;
 
     private record Preset(String title, double reward, double gamma) {
@@ -95,7 +93,6 @@ public final class MainFrame extends JFrame {
     private final JButton stepButton = new JButton("Шаг");
     private final JToggleButton runButton = new JToggleButton("Пуск");
     private final JButton newEpisodeButton = new JButton("Новый эпизод");
-    private final JButton seriesButton = new JButton("Серия × " + SERIES_EPISODES);
     private final JSlider speedSlider = new JSlider(50, 1200, 450);
 
     private final JCheckBox heatMapBox = new JCheckBox("Тепловая карта", true);
@@ -111,7 +108,6 @@ public final class MainFrame extends JFrame {
     private final List<Position> trail = new ArrayList<>();
     private StepRecord lastStep;
     private boolean updating;
-    private long seriesCounter;
     private long generationCounter;
 
     public MainFrame() {
@@ -235,11 +231,10 @@ public final class MainFrame extends JFrame {
 
     private JPanel agentSection() {
         JPanel p = section("Агент");
-        JPanel buttons = new JPanel(new GridLayout(2, 2, 4, 4));
+        JPanel buttons = new JPanel(new GridLayout(1, 3, 4, 4));
         buttons.add(stepButton);
         buttons.add(runButton);
         buttons.add(newEpisodeButton);
-        buttons.add(seriesButton);
         addRow(p, buttons, null);
         addRow(p, new JLabel("Задержка, мс"), speedSlider);
         return p;
@@ -345,7 +340,6 @@ public final class MainFrame extends JFrame {
             stopTimer();
             newEpisode();
         });
-        seriesButton.addActionListener(e -> runSeries());
         speedSlider.addChangeListener(e -> timer.setDelay(speedSlider.getValue()));
         heatMapBox.addActionListener(e -> gridPanel.setHeatMap(heatMapBox.isSelected()));
         utilitiesBox.addActionListener(e -> gridPanel.setShowUtilities(utilitiesBox.isSelected()));
@@ -505,27 +499,6 @@ public final class MainFrame extends JFrame {
         refreshAgentView();
     }
 
-    private void runSeries() {
-        if (agent == null) {
-            return;
-        }
-        long seed = ((Number) seedSpinner.getValue()).longValue() * 1_000_003L + (++seriesCounter);
-        EpisodeStatistics stats = agent.simulate(SERIES_EPISODES, seed, MAX_EPISODE_STEPS);
-        Position start = mdp.world().start();
-        double expected = result.utilities().get(start);
-        StringBuilder sb = new StringBuilder();
-        sb.append("Серия ").append(stats.episodes()).append(" эпизодов: средняя Σγᵗ·R = ")
-                .append(Fmt.fixed(stats.meanReturn(), 4)).append(" ± ").append(Fmt.fixed(stats.confidence95(), 4))
-                .append(" (95%), расчётная U").append(start).append(" = ").append(Fmt.fixed(expected, 4))
-                .append(", среднее число шагов ").append(Fmt.fixed(stats.meanSteps(), 2));
-        stats.exits().forEach((p, n) -> sb.append(", выход ").append(p).append(": ")
-                .append(Fmt.fixed(100.0 * n / stats.episodes(), 1)).append('%'));
-        if (stats.timeouts() > 0) {
-            sb.append(", прервано по лимиту: ").append(stats.timeouts());
-        }
-        log(sb.toString());
-    }
-
     private void refreshAgentView() {
         if (agent == null) {
             return;
@@ -547,7 +520,6 @@ public final class MainFrame extends JFrame {
         stepButton.setEnabled(enabled);
         runButton.setEnabled(enabled);
         newEpisodeButton.setEnabled(enabled);
-        seriesButton.setEnabled(enabled);
         iterationSlider.setEnabled(enabled);
     }
 
@@ -603,10 +575,6 @@ public final class MainFrame extends JFrame {
     void clickCell(Position cell, boolean primary) {
         editModeBox.setSelected(true);
         onCellClicked(cell, primary);
-    }
-
-    void runSeriesForTest() {
-        runSeries();
     }
 
     void newEpisodeForTest() {
